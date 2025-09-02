@@ -24,7 +24,7 @@
 ## Ініціалізація проекту
 
 ```bash
-node npm install
+npx npm install
 ```
 
 ---
@@ -34,7 +34,7 @@ node npm install
 Встанови потрібні пакети командою:
 
 ```bash
-node npm install axios googleapis
+npx npm install axios googleapis
 ```
 
 ---
@@ -48,13 +48,13 @@ node npm install axios googleapis
 2. Запусти скрипт:
 
 ```bash
-node index.js
+npx index.js
 ```
 
 або
 
 ```bash
-node npm start
+npx npm start
 ```
 
 ---
