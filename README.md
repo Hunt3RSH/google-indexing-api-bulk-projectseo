@@ -1,42 +1,65 @@
 # google-indexing-api-bulk
 
-Created by Steve at [Journey Further SEO](https://www.journeyfurther.com/)
+Скрипт для масової відправки URL у **Google Indexing API**.  
+Дозволяє швидко повідомляти Google про оновлення чи видалення сторінок без ручного додавання у Search Console.
 
-Requires node.js - https://nodejs.org/en/download/
+---
 
-This script will help you index your website's pages in bulk, without having to manually request each URL for submission in the Search Console interface.
+## Вимоги
 
-First off you will need to set up access to the Indexing API in Google Cloud Platform - follow the instructions below.
+- [Node.js](https://nodejs.org/en/download/) (версія 16+ рекомендована)
+- Ключ сервісного акаунта Google (`service_account.json`)
+- Попередньо увімкнений [Indexing API у Google Cloud](https://developers.google.com/search/apis/indexing-api/v3/prereqs)
 
-https://developers.google.com/search/apis/indexing-api/v3/prereqs
+---
 
-Once you have access to Indexing API you'll be able to download a public/private key pair JSON file, this contains all of your credentials and should be saved as "service_account.json".
+## Налаштування доступу
 
-Add the URLs to the urls.txt file that you need to be crawled/indexed.
+1. Увімкни Indexing API у Google Cloud та створи **service account**.
+2. Завантаж JSON-ключ і збережи його як `service_account.json` у корінь проєкту.
+3. Додай email із `client_email` (у JSON) як **delegated owner** до свого сайту у Search Console.
 
+---
 
-## Verify site ownership in Search Console to submit URLs for indexing
-In this step, you'll verify that you have control over your web property.
+## ініціалізація проекту
 
-To verify ownership of your site you'll need to add your service account email address (see service_account.json - client_email) and add it as an owner ('delegated') of the web property in Search Console.
+```bash
+node npm install
+```
 
-You can find your service account email address in two places:
-- The client_email field in the JSON private key that you downloaded when you created your project.
-- The Service account ID column of the Service Accounts view in the Developer Console.
-- The email address has a format similar to the following:
+---
 
-For example, "my-service-account@test-project-42.google.com.iam.gserviceaccount.com".
+## Встановлення залежностей
 
-Then...
+Встанови потрібні пакети командою:
 
-1. Go to [Google Webmaster Central](https://www.google.com/webmasters/verification/home)
-2. Click your verified property
-3. Scroll down and click 'Add an owner'.
-4. Add your service account email address as an owner to the property.
+```bash
+node npm install axios googleapis
+```
 
+---
 
-## Quotas
+## Використання
 
-100 URLs per request batch
+1. Додай URL у файл `urls.txt` (по одному в рядок).
 
-200 URLs per day
+   > Рекомендовано очистити файл від зайвих пробілів чи прихованих символів (наприклад, `\u200b`).
+
+2. Запусти скрипт:
+
+```bash
+node index.js
+```
+
+або
+
+```bash
+node npm start
+```
+
+---
+
+## Обмеження (Quotas)
+
+- **До 100 URL** в одному batch-запиті.
+- **200 URL на день** за замовчуванням (ліміт можна підняти через Google Cloud Console)
