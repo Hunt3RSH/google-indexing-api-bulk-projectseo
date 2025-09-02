@@ -1,4 +1,4 @@
-# google-indexing-api-bulk
+# google-indexing-api-bulk-projectseo
 
 Скрипт для масової відправки URL у **Google Indexing API**.  
 Дозволяє швидко повідомляти Google про оновлення чи видалення сторінок без ручного додавання у Search Console.
