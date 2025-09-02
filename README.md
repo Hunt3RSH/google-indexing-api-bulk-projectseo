@@ -7,7 +7,7 @@
 
 ## Вимоги
 
-- [Node.js](https://nodejs.org/en/download/) (версія 16+ рекомендована)
+- [Node.js](https://nodejs.org/en/download/) (версія 22+ рекомендована)
 - Ключ сервісного акаунта Google (`service_account.json`)
 - Попередньо увімкнений [Indexing API у Google Cloud](https://developers.google.com/search/apis/indexing-api/v3/prereqs)
 
