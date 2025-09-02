@@ -1,51 +1,56 @@
 const fs = require('fs');
-var request = require('request');
-var { google } = require('googleapis');
-var key = require('./service_account.json');
+const axios = require('axios');
+const { google } = require('googleapis');
+const key = require('./service_account.json'); // переконайся, що файл існує
 
-const jwtClient = new google.auth.JWT(
-  key.client_email,
-  null,
-  key.private_key,
-  ['https://www.googleapis.com/auth/indexing'],
-  null
-);
+// Створюємо JWT-клієнт
+const jwtClient = new google.auth.JWT({
+  email: key.client_email,
+  key: key.private_key,
+  scopes: ['https://www.googleapis.com/auth/indexing']
+});
 
-const batch = fs
-  .readFileSync('urls.txt')
-  .toString()
-  .split('\n');
+// Очищаємо URL з файлу
+const urls = fs.readFileSync('urls.txt', 'utf-8')
+  .split('\n')
+  .map(line => line.trim().replace(/[\u200B-\u200D\uFEFF]/g, ''))
+  .filter(line => line !== '');
+  
+(async () => {
+  try {
+    // Авторизуємо JWT
+    const tokens = await jwtClient.authorize();
 
-jwtClient.authorize(function(err, tokens) {
-  if (err) {
-    console.log(err);
-    return;
-  }
+    // Генеруємо унікальний boundary для multipart
+    const boundary = 'batch_' + Date.now();
 
-  const items = batch.map(line => {
-    return {
-      'Content-Type': 'application/http',
-      'Content-ID': '',
-      body:
+    // Формуємо тіло запиту
+    const body = urls.map(url => {
+      return (
+        `--${boundary}\n` +
+        'Content-Type: application/http\n' +
+        'Content-ID: <item>\n\n' +
         'POST /v3/urlNotifications:publish HTTP/1.1\n' +
         'Content-Type: application/json\n\n' +
-        JSON.stringify({
-          url: line,
-          type: 'URL_UPDATED'
-        })
-    };
-  });
+        JSON.stringify({ url, type: 'URL_UPDATED' }) +
+        '\n'
+      );
+    }).join('') + `--${boundary}--`;
 
-  const options = {
-    url: 'https://indexing.googleapis.com/batch',
-    method: 'POST',
-    headers: {
-      'Content-Type': 'multipart/mixed'
-    },
-    auth: { bearer: tokens.access_token },
-    multipart: items
-  };
-  request(options, (err, resp, body) => {
-    console.log(body);
-  });
-});
+    // Відправляємо запит
+    const response = await axios.post(
+      'https://indexing.googleapis.com/batch',
+      body,
+      {
+        headers: {
+          'Content-Type': `multipart/mixed; boundary=${boundary}`,
+          Authorization: `Bearer ${tokens.access_token}`
+        }
+      }
+    );
+
+    console.log('Response:', response.data);
+  } catch (err) {
+    console.error('Error:', err.response?.data || err.message);
+  }
+})();
